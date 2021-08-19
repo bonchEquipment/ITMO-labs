@@ -1,0 +1,61 @@
+	ORG 0x3F0;
+ARG1:	WORD 	 0x55;	число для первого тестового блока
+ARG2:	WORD	 0xEDAB;	число для второго тестового блока (-1255)
+ARG3:	WORD	 0x8000;	число для третьего тестового блока (-2^15)
+EXPECTED1:	WORD	 0xFFAB; 	ожидаемый ответ для блока 1 (-55)
+EXPECTED2:	WORD	 0x1255;     	ожидаемый ответ для блока 2
+EXPECTED3:	WORD	 0x8000;	ожидаемый ответ для блока 3
+RES1:	WORD	 0;   корректность блока 1
+RES2:	WORD	 0;   корректность блока 2
+RES3:	WORD	 0;   корректность блока 3
+FINAL_ALL:	WORD	 0;   общая корректность
+
+	ORG  0x406;
+START:	CLA
+	ST	 RES1;
+	ST	 RES2;
+	ST	 RES3;
+	ST	 FINAL_ALL;
+
+TEST_1:	WORD	 0x93F0;
+	BPL	 TEST_1_FAILED;   если не установлен флаг N, тест провален
+	BEQ	 TEST_1_FAILED;   если установлен флаг Z, тест провален
+	BLO	 TEST_1_FAILED;   если установлен флаг C, тест провален
+	LD	 ARG1;
+	CMP	 EXPECTED1;	    если значение ячейки  совпадает с
+	BEQ	 TEST1_PASSED;  ожидаемым, тест пройден
+TEST1_PASSED: LD  #1;
+	ST	 RES1;
+	JUMP	 TEST_2;
+TEST_1_FAILED: JUMP	 TEST_2;
+
+TEST_2:	WORD	 0x93F1;
+	BMI	 TEST_2_FAILED;   если установлен флаг N, тест провален
+	BEQ	 TEST_2_FAILED;   если установлен флаг Z, тест провален
+	BLO	 TEST_2_FAILED;   если установлен флаг C, тест провален
+	LD	 ARG2;
+	CMP	 EXPECTED2;	    если значение ячейки совпадает с
+	BEQ	 TEST2_PASSED;  ожидаемым, тест пройден
+TEST2_PASSED: LD  #1;
+	ST	 RES2;
+	JUMP	 TEST_3;
+TEST_2_FAILED: JUMP	 TEST_3;
+
+TEST_3:	WORD	 0x93F2;
+	BPL	 TEST_3_FAILED;   если не установлен флаг N, тест провален
+	BEQ	 TEST_3_FAILED;   если установлен флаг Z, тест провален
+	BLO	 TEST_3_FAILED;   если установлен флаг C, тест провален
+	LD	 ARG3;
+	CMP	 EXPECTED3;	    если значение ячейки  совпадает
+	BEQ	 TEST3_PASSED;  с ожидаемым, тест пройден
+TEST3_PASSED: LD  #1;
+	ST	 RES3;
+	JUMP	 CHECK_ALL;
+TEST_3_FAILED: JUMP	 CHECK_ALL;
+
+CHECK_ALL:	LD	 RES1;
+	AND	 RES2;
+	AND	 RES3;
+	ST	 FINAL_ALL;
+	HLT;
+	 
