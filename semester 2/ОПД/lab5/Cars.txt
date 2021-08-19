@@ -1,0 +1,64 @@
+ORG	0x00
+NUMBER:	WORD	0	;Число, которое приномается от пользователя и задаёт сторону движения
+ARR_ADR:WORD	0	;Адрес используемой ячейки из массива
+ARR_SIZ:WORD	10	;Размер массива
+ARR_F:	WORD	5	;Адрес первого элемента
+ARR_L:	WORD	14	;Адрес последнего элемента
+	WORD	0x06
+	WORD	0x07
+	WORD	0x07
+	WORD	0x0E
+	WORD	0x1E
+	WORD	0x1E
+	WORD	0x1E
+	WORD	0x1F
+	WORD	0x1F
+	WORD	0x0E
+
+START:	CLA
+REDDY:	IN	7	;Цикл приёма от пользователя первого числа и готовности к работе
+	AND	#0x40
+	BEQ	REDDY
+	IN	6
+	SXTB
+	ST	NUMBER
+	CLA
+	OUT	0x10
+	OUT	0x10
+	JUMP	STD
+
+REP:	LD	#10	;Повторяющийся с каждой новой машинкой элемент, который отвечает за запуск
+			;одного из следующих вариантов печатанья мащинки (Такой, как и предыдущая или новая)
+	ST	ARR_SIZ
+	CLA
+	OUT	0x10
+	OUT	0x10
+	IN	7
+	AND	#0x40
+	BEQ	STD
+	IN	6
+	SXTB
+	ST	NUMBER
+	
+STD:	LD	NUMBER	;Общий для всех машинок участок, где определяется её направление
+	BMI	NEGAT
+	LD	$ARR_L
+	INC
+	ST	ARR_ADR
+P_P:	LD	-(ARR_ADR)	;Цикл для вывода машинки в правую сторону
+	OUT	0x10
+	LOOP	ARR_SIZ
+	JUMP	P_P
+	JUMP	REP
+
+NEGAT:	LD	$ARR_F	;Цикл для вывода машинки в левую сторону
+	ST	ARR_ADR
+P_N:	LD	(ARR_ADR)+
+	OUT	0x10
+	LOOP	ARR_SIZ
+	JUMP	P_N
+	JUMP	REP
+
+
+   ВУ - 3  
+6, 7, 8, 9, A, B, C, D, E

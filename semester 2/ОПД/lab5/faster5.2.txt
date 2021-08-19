@@ -1,0 +1,55 @@
+ORG             0x0;
+ADDR_FIRST:	 	  WORD    6	;Адрес первого элемента
+ADDR_CURRENT:	  WORD    0	;Адрес текущего элемента
+ARR_LENGTH :	                                  WORD 42        ; Длина массива
+STOP_SYMBOL:    WORD    0x0D;Символ окончания строки
+READ_BYTE:      WORD    0x2 ; Указывает, какой символ передавать из ячейки
+MASK:           WORD 0x00FF; Съешь ещё этих мягких французских булок, да выпей чаю!
+
+                               WORD	0x009A; 
+	WORD 	0xF3DF;  Съ
+	WORD	0xC5DB;   еш
+	WORD	0xD89A;   ь
+                               WORD	0xC5DD; ещ          
+	WORD	0xA39A ; ё  
+	WORD	0xDCD4; эт   
+	WORD	0xC9C8 ; их  
+	WORD	0x9ACD ;  м  
+	WORD	0xD1C7 ; яг    
+	WORD	0xCBC9 ; ки  
+	WORD	0xC89A; х    
+	WORD	0xC6D2; фр 
+	WORD	0xC1CE; ан  
+	WORD	0xC3D5; цу
+	WORD	0xDAD3; зс
+	WORD	0xCBC9; ки 
+	WORD	0xC89A   ;х 
+	WORD	0xC2D5   ; бу 	
+	WORD	0xCCCF   ; ло 
+	WORD	0xCB9A   ; к
+	
+
+
+
+START:          LD   ADDR_FIRST;
+                ST   ADDR_CURRENT; инициализируем указатель на текущий элемет
+     
+SPIN:            LD READ_BYTE;
+                CMP #0x2;          работаем со старшим или с младшим байтом
+                BEQ CASE_2; 
+
+CASE_1:         LD #0x2;           меняем режим, чтобы на следующем проходе вывести старший байт
+                ST READ_BYTE;      2 ->  READ_BYTE
+                LD (ADDR_CURRENT)+;  оба символа из ячейки прочитаны, так что
+                JUMP OUTPUT;         перемещаем указатель на след. ячейку памяти
+     
+CASE_2:         LD #0x1;             меняем режим, чтобы в последующем вывести младший байт
+                ST READ_BYTE;        1 -> READ_BYTE
+                LD (ADDR_CURRENT);   загружаем оба символа из ячейки памяти,
+                SWAB;                помещаем необходимый символ в младший байт      
+     
+OUTPUT:  	 OUT 0xC;     
+	LOOP ARR_LENGTH;
+                               JUMP SPIN;          если нет, ждем нажатия кнопки "готов" для вывода следующего символа
+     
+END_:           HLT;    
