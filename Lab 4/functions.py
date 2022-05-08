@@ -1,0 +1,1 @@
+initial_function = lambda x: (5*x)/(x**4 + 1)
