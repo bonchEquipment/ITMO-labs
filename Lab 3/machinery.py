@@ -38,10 +38,12 @@ def trapeze_method(function, a, b, n, need_to_log):
     length = (b - a) / n
     iterations = [[0, a, function(a)]]
     for i in range(n):
-        top_base = function(length * i)
-        bottom_base = function(length * (i + 1))
+        left_border = a + length * i
+        right_border = left_border + length
+        top_base = function(left_border)
+        bottom_base = function(right_border)
         sum += ((top_base + bottom_base)/2) * length
-        iterations.append([i + 1, bottom_base, function(bottom_base), sum])
+        iterations.append([i + 1, right_border, function(right_border), sum])
     if need_to_log:
         print(tabulate(iterations, headers=['i', 'xi', 'yi,', 'sum']))
     return sum
